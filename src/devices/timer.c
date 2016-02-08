@@ -41,7 +41,7 @@ timer_init (void)
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
 
-  //I think I'm supposed to inititlize list here?
+  //I think I'm supposed to initialize list here?
   list_init(&sleepingThreadList);
 }
 
@@ -95,7 +95,6 @@ timer_elapsed (int64_t then)
 void
 timer_sleep (int64_t ticks)
 {
-  //Make sure interrupts are on?
   ASSERT (intr_get_level () == INTR_ON);
 
   //Return & exit function if the wait time is <= 0, since no need to wait...
@@ -104,11 +103,11 @@ timer_sleep (int64_t ticks)
   }
 
   //Welp, need to disable interrupts for this to work.
-  //Having interrupts on in a timer is a bad idea
   //Doing it by the book here~
   enum intr_level old_level = intr_disable();
 
   //Figure out what "tick" to wake up at.
+  //current tick plus the ticks passwed into timer_sleep
   thread_current()->wakeupTicks = timer_ticks() + ticks;
 
   //push the current thread into the sleepingThreadList
@@ -203,27 +202,27 @@ timer_interrupt (struct intr_frame *args UNUSED)
   ticks++;
   thread_tick ();
 
+  //New Code for thi function below:
+
   //This might blow up if the ticks overflow past the tick timer,
   //but lets not worry about that and hope for the best.
 
   //While the list is not empty...
+	//There is a while loop instead of an if in case two threads are
+	//super intimate and are next to or on top of each other.
   while(!list_empty(&sleepingThreadList)) {
-    //get the thread element from the list
-    struct list_elem *listElement = list_begin(&sleepingThreadList);
+    //get the next thread element from the list
+		struct list_elem *listElement = list_begin(&sleepingThreadList);
     struct thread *superDuperSpecialThread = list_entry(listElement, struct thread, elem);
-    
-	//As long as the ticks for the thread we want to wake up on is
-    //greater than the master tick counter thing, don't unblock it.
-    //AKA break out of the while loop and don't execute the code below
-    if (superDuperSpecialThread->wakeupTicks > ticks) {
-      break;
-    }
 
-	//It is time...to wake up the thread!
-    list_remove(listElement);
-    thread_unblock(superDuperSpecialThread);
-    listElement = list_begin(&sleepingThreadList);
-  }
+    if(superDuperSpecialThread->wakeupTicks > ticks) {
+			break;
+		}
+			//It is time...to wake up the thread!
+			//Remove thread from list, unblock said thread.
+			list_remove(listElement);
+			thread_unblock(superDuperSpecialThread);
+	}
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

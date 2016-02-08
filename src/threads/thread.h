@@ -101,6 +101,7 @@ struct thread
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
 
+    //New variables here:
     //Ticks to wake up.  Used by timer sleep
     int64_t wakeupTicks;
   };
@@ -143,6 +144,7 @@ int thread_get_load_avg (void);
 
 
 //New functions here:
+
 //Seriously, what the hell is aux?
 bool thread_compare_ticks(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
 
