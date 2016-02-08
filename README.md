@@ -1,2 +1,2 @@
-# PintosThingy
+# Pintos!
 Fun fun fun
