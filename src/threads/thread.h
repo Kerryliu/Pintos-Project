@@ -4,6 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -104,6 +105,10 @@ struct thread
     //New variables here:
     //Ticks to wake up.  Used by timer sleep
     int64_t wakeupTicks;
+    int core_priority;
+    struct lock *requested_lock;
+    struct list donations;
+    struct list_elem donations_elem; //Damn duplicate elem's
   };
 
 /* If false (default), use round-robin scheduler.
@@ -144,8 +149,10 @@ int thread_get_load_avg (void);
 
 
 //New functions here:
-
-//Seriously, what the hell is aux?
 bool thread_compare_ticks(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
-
+bool thread_compare_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
+void superDuperCheckerThing(void);
+void thread_donate_priority(void);
+void rtfdl(struct lock *lock); //Remove thread from donations list.. I mean I could have used that as the function name. :|
+void thread_update_priorities(void);
 #endif /* threads/thread.h */
