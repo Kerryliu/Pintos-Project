@@ -134,7 +134,7 @@ thread_tick (void)
   else
     kernel_ticks++;
 
-  // /* Enforce preemption. */
+  /* Enforce preemption. */
   if (++thread_ticks >= TIME_SLICE)
     intr_yield_on_return ();
 }
@@ -351,19 +351,18 @@ void
 thread_set_priority (int new_priority)
 {
   enum intr_level old_level = intr_disable();
-	//Save the old priority and change the core_priority of the thread
-	//fix/update the thread priority afterwards
-	//old priority is required to check if thread should yield or not
-	struct thread *curThread = thread_current();
+  //Save the old priority and change the core_priority of the thread
+  //fix/update the thread priority afterwards
+  //old priority is required to check if thread should yield or not
+  struct thread *curThread = thread_current();
   int old_priority = curThread->priority;
   curThread->core_priority = new_priority;
   thread_update_priority();
 
   if(new_priority > old_priority) { //Donate priority if priority is greater to prevent deadlocking
     thread_donate_priority();
-  }
-  else if(new_priority < old_priority) { //Check donation list and see if thread should be yielded
-    superDuperCheckerThing(); 
+  } else if(new_priority < old_priority) { //Check donation list and see if thread should be yielded
+    superDuperCheckerThing();
   }
   intr_set_level(old_level);
 }
@@ -645,7 +644,7 @@ bool thread_compare_priority(const struct list_elem *a, const struct list_elem *
 //Yields if the current thread has a lower priority than the next one in the list.
 //RUn this when the priority of the curent thread is changed.
 void superDuperCheckerThing(void) {
-	//Make sure list is not empty first... program dies if this isn't here
+  //Make sure list is not empty first... program dies if this isn't here
   if(list_empty(&ready_list)) {
     return;
   }

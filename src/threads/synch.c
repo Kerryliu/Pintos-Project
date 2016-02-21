@@ -201,16 +201,16 @@ lock_acquire (struct lock *lock)
 
   enum intr_level old_level = intr_disable();
 
+  struct thread *curThread = thread_current();
   if(lock->holder) { //If a thread is holding the lock
-    thread_current()->requested_lock = lock;
-    list_insert_ordered(&lock->holder->donations, &thread_current()->donations_elem, &thread_compare_priority, NULL);
+    curThread->requested_lock = lock;
+    list_insert_ordered(&lock->holder->donations, &curThread->donations_elem, &thread_compare_priority, NULL);
   }
 
-  sema_down (&lock->semaphore); //This does magic, which changes the current thread
+  sema_down (&lock->semaphore); //This does magic~
 
-  thread_current()->requested_lock = NULL;
-
-  lock->holder = thread_current();
+  curThread->requested_lock = NULL;
+  lock->holder = curThread;
   intr_set_level(old_level);
 }
 

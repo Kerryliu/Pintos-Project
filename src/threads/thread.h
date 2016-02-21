@@ -154,5 +154,5 @@ bool thread_compare_priority(const struct list_elem *a, const struct list_elem *
 void superDuperCheckerThing(void);
 void thread_donate_priority(void);
 void rtfdl(struct lock *lock); //Remove thread from donations list.. I mean I could have used that as the function name. :|
-void thread_update_priorities(void);
+void thread_update_priority(void);
 #endif /* threads/thread.h */
