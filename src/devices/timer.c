@@ -202,7 +202,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   ticks++;
   thread_tick ();
 
-  //New Code for thi function below:
+  //New Code for the function below:
 
   //This might blow up if the ticks overflow past the tick timer,
   //but lets not worry about that and hope for the best.
@@ -216,12 +216,13 @@ timer_interrupt (struct intr_frame *args UNUSED)
     struct thread *superDuperSpecialThread = list_entry(listElement, struct thread, elem);
 
     if(superDuperSpecialThread->wakeupTicks > ticks) {
-			break;
-		}
+			return;
+		} else {
 			//It is time...to wake up the thread!
 			//Remove thread from list, unblock said thread.
 			list_remove(listElement);
 			thread_unblock(superDuperSpecialThread);
+		}
 	}
 }
 
