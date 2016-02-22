@@ -105,16 +105,16 @@ timer_sleep (int64_t ticks)
   //Welp, need to disable interrupts for this to work.
   //Doing it by the book here~
   enum intr_level old_level = intr_disable();
-
+  struct thread *curThread = thread_current();
   //Figure out what "tick" to wake up at.
   //current tick plus the ticks passwed into timer_sleep
-  thread_current()->wakeupTicks = timer_ticks() + ticks;
+  curThread->wakeupTicks = timer_ticks() + ticks;
 
   //push the current thread into the sleepingThreadList
   //(using the included list functions in /lib/kernel/list.h)
   //Also what the hell is aux?
   //Basically this just pushes the thread that's supposed to wake up first to the front.
-  list_insert_ordered(&sleepingThreadList, &thread_current()->elem, &thread_compare_ticks, NULL);
+  list_insert_ordered(&sleepingThreadList, &curThread->elem, &thread_compare_ticks, NULL);
   //Now I'm assuming I have to trigger timer_interrupt() when the thread reaches the top?
 
   //BLOCK THE THREAD~
