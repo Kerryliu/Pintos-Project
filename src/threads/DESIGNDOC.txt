@@ -23,6 +23,8 @@ Sajeel Ahmad <netid@scarletmail.rutgers.edu>
 >> preparing your submission, other than the Pintos documentation, course
 >> text, lecture notes, and course staff.
 
+
+
 			     ALARM CLOCK
 			     ===========
 
@@ -31,9 +33,10 @@ Sajeel Ahmad <netid@scarletmail.rutgers.edu>
 >> A1: Copy here the declaration of each new or changed `struct' or
 >> `struct' member, global or static variable, `typedef', or
 >> enumeration.  Identify the purpose of each in 25 words or less.
+
 timer.c:
 - static struct list sleepingThreadList
-	The list of threads that are currently blocked, in order of lowest
+	The list of threads that are currently blocked, sorted in order of lowest
 	to highest tick to be unblocked.  
 thread.h:
 - In struct thread:
@@ -48,14 +51,14 @@ thread.h:
 - Timer sleep is given an argument "ticks".  This argument determines
 how long the current thread will be blocked.  
 - If the ticks given is zero or negative, then nothing happens, and 
-the current therad continues to run.  
+the current thread continues to run.  
 - If the ticks given is positive, then the thread is pushed to a list
 of threads.  This list contains threads that are currently sleeping or
 blocked, sorted from lowest to highest ticks.  
 
 - Timer interrupt checks the first thread in the sleeping list to see 
 if it is time to wake it up.  If it is, the thread is unblocked, and 
-popped from the front of the sleeping list.  If not the thread will 
+popped from the front of the sleeping list.  If not, then the thread will 
 continue to be blocked.  
 
 ---- SYNCHRONIZATION ----
@@ -66,7 +69,7 @@ continue to be blocked.
 Interrupts are disabled when timer_sleep is called, therefore 
 there should not be multiple calls to timer_sleep, since pintos 
 is a single core operating system.  This makes sure only one thread 
-will be runnning at a time, and timer_sleep cannot be called 
+will be running at a time, and timer_sleep cannot be called 
 simultaneously.
 
 ---- RATIONALE ----
@@ -75,7 +78,7 @@ simultaneously.
 >> another design you considered?
 
 This design was chosen because it is very efficient and simple to 
-implement.  It works well with multiple threads and eliminaes busy 
+implement.  It works well with multiple threads and eliminates busy 
 waiting.  It is superior to other algorithms that were considered since
 it does not have to look at every thread's "wakeupticks" since they are 
 inserted into the sleepingThreadList in the most optimal order. 
@@ -107,10 +110,10 @@ A, B, and C are thread.
 L is a lock 
 
 1) Lock holder A, Threads A & B are ready to run. C is on waitlist
-A		B		C  <---Theads
+A		B		C  <---Threads
 1		2		3  <---Priority
 
-2) Piority of A is changed to 3, so it can donate lock to C.  
+2) Priority of A is changed to 3, so it can donate lock to C.  
 A		B		C <---Threads
 3		2		3 <---Priority
 
@@ -122,8 +125,9 @@ A		B		C <---Thread
 
 >> B3: How do you ensure that the highest priority thread waiting for
 >> a lock, semaphore, or condition variable wakes up first?
-threads are inserted into a list sorted by priority.  Therefore popping 
-the first element from the list will ensure that it is the highest 
+
+Threads are inserted into a list sorted by priority. Therefore, by popping 
+the front/first element from the list will ensure that it is the highest 
 priority.  
 
 >> B4: Describe the sequence of events when a call to lock_acquire()
@@ -139,13 +143,14 @@ lock.
 >> B5: Describe a potential race in thread_set_priority() and explain
 >> how your implementation avoids it.
 
-Interrupts are turned off when setting priority.  This means that there 
-cannot be a race in thread_set_priority().
+A potential race in thread_set_priority() would occur if interrupts were not disabled. However, since interrupts are disabled when setting priority indicates that there cannot be a race condition in thread_set_priority().
 
 ---- RATIONALE ----
 
 >> B6: Why did you choose this design?  In what ways is it superior to
 >> another design you considered?
+
+This design was chosen because it is a simple, effective way to manage priority scheduling. Additionally, it is a clean design that minimizes the excess use of data structures. Lastly, this design requires a minimum amount of code compared to other designs we consider.
 
 			   SURVEY QUESTIONS
 			   ================
@@ -159,13 +164,21 @@ the quarter.
 >> In your opinion, was this assignment, or any one of the three problems
 >> in it, too easy or too hard?  Did it take too long or too little time?
 
+Yes, it was very challenging, and time consuming. 
+
 >> Did you find that working on a particular part of the assignment gave
 >> you greater insight into some aspect of OS design?
+
+Yes, it helped us better understand a few aspects of OS design such as race conditions, and how an OS handles multiple threads.
 
 >> Is there some particular fact or hint we should give students in
 >> future quarters to help them solve the problems?  Conversely, did you
 >> find any of our guidance to be misleading?
 
+
+
 >> Do you have any suggestions for the TAs to more effectively assist
 >> students, either for future quarters or the remaining projects?
 >> Any other comments?
+
+- Host more office hours that fit students schedules and provide more hints as the project difficult increases. 
