@@ -23,7 +23,7 @@ Sajeel Ahmad <netid@scarletmail.rutgers.edu>
 >> preparing your submission, other than the Pintos documentation, course
 >> text, lecture notes, and course staff.
 
-
+http://web.eecs.umich.edu/~akamil/teaching/sp04/pri/ 
 
 			     ALARM CLOCK
 			     ===========
