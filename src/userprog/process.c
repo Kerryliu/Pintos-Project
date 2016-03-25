@@ -20,12 +20,20 @@
 #include "threads/vaddr.h"
 
 static thread_func start_process NO_RETURN;
+//. add a pointer for strtok_r()
+//. savePointer = save_ptr from strtok_r()
 static bool load (const char *cmdline, void (**eip) (void), void **esp, char **savePointer);
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
    before process_execute() returns.  Returns the new process's
    thread id, or TID_ERROR if the thread cannot be created. */
+
+//get file name, use strtok with savePointer to keep track of 
+//the tokenizer's position
+  char *savePointer = NULL;
+  file_name = strtok_r(file_name, " ", &savePointer);
+
 tid_t
 process_execute (const char *file_name) 
 {
@@ -54,16 +62,14 @@ start_process (void *file_name_)
   char *file_name = file_name_;
   struct intr_frame if_;
   bool success;
-	
-	//get file name
-	char *savePointer;
-	file_name = strtok_r(file_name, " ", &savePointer);
 
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
+  //. add reference to pointer
+  //. eip = return address , and esp = current stack pointer
   success = load (file_name, &if_.eip, &if_.esp, &savePointer);
 
   /* If load failed, quit. */
@@ -200,6 +206,8 @@ struct Elf32_Phdr
 #define PF_W 2          /* Writable. */
 #define PF_R 4          /* Readable. */
 
+//. have to set up stack for argument passing 
+//. include current stack pointer , constant filename, savePointer
 static bool setup_stack (void **esp, const char *fileName, char ** savePointer);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
@@ -210,8 +218,7 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
    Stores the executable's entry point into *EIP
    and its initial stack pointer into *ESP.
    Returns true if successful, false otherwise. */
-bool
-load (const char *file_name, void (**eip) (void), void **esp, char **savePointer) 
+bool load (const char *file_name, void (**eip) (void), void **esp, char **savePointer) 
 {
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
@@ -443,9 +450,11 @@ setup_stack (void **esp, const char *fileName, char **savePointer)
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
         *esp = PHYS_BASE;
-      else
+      else{
         palloc_free_page (kpage);
+        //. return success 
 				return success;
+      }
     }
 
 	char *token;
@@ -483,24 +492,28 @@ setup_stack (void **esp, const char *fileName, char **savePointer)
 		*esp -= i;
 		memcpy(*esp, &argv[argc], i);
 	}
-
+  // will push all argv[i] to current pointer in stack
 	for(i = argc; i >= 0; i--) {
+    // will shift the current pointer
 		*esp -= charPointerSize;
+    // will make the copy aka push into stack
 		memcpy(*esp, &argv[i], charPointerSize);
 	}
-	
+	// argv
+  // will push argv into stack using current stack pointer
 	token = *esp;
 	*esp -= sizeof(char**);
 	memcpy(*esp, &token, sizeof(char**));
 		
 	//argc
+  // will push argc into stack using current stack pointer
 	*esp -= intPointerSize;
 	memcpy(*esp, &argc, intPointerSize);
 
-	//fake return address
+	// push a fake “return address” to keep consistant structure
 	*esp -= sizeof(void*);
 	memcpy(*esp, &argv[argc], sizeof(void*));
-
+  //deallocate the memory used for argv
 	free(argv);
 
 	return success;
