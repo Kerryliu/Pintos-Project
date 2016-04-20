@@ -11,7 +11,7 @@ ERRORS = $(addsuffix .errors,$(TESTS) $(EXTRA_GRADES))
 RESULTS = $(addsuffix .result,$(TESTS) $(EXTRA_GRADES))
 
 ifdef PROGS
-include ../../Makefile.userprog
+include ../Makefile.userprog
 endif
 
 TIMEOUT = 60
