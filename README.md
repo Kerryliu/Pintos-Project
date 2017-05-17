@@ -1,2 +1,2 @@
 # Pintos!
-Fun fun fun
+First pintos project to remove busy waiting for processes...
